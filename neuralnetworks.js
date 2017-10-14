@@ -10,6 +10,14 @@ function sigmoid(x) {
     return 1/(1+Math.exp(-x));
 }
 
+function signe(x){
+    if (x >= 0){
+        return 1;
+    }else{
+        return -1;
+    }
+}
+
 function dsigmoid(x) {
     return x*(1-x);
 }
@@ -30,8 +38,8 @@ function NeuralNetwork(inp, hid, out, ritme=0.1, act=sigmoid){
     this.inp = inp;
     this.hid = hid;
     this.out = out;
-    this.wih = Matriu(this.hid, this.inp);
-    this.who = Matriu(this.out, this.hid);
+    this.wih = new Matriu(this.hid, this.inp);
+    this.who = new Matriu(this.out, this.hid);
     this.wih.aleatoritza();
     this.who.aleatoritza();
     this.ritme = ritme;
@@ -39,8 +47,10 @@ function NeuralNetwork(inp, hid, out, ritme=0.1, act=sigmoid){
 
     if (act == sigmoid){
         this.dact = dsigmoid;
-    }else{
+    }else if (act == Math.tanh){
         this.dact = dtanh;
+    }else{
+        this.dact = x => 0;
     }
 
     this.muta = function() {
@@ -57,26 +67,41 @@ function NeuralNetwork(inp, hid, out, ritme=0.1, act=sigmoid){
         let out_inputs = prod(this.who, hid_outputs);
         let outputs = mapa(out_inputs, this.act);
 
-        let err = targets - outputs;
+        let err = targets.sub(outputs);
         let hid_err = prod(this.who.tr(), err);
 
         let grad_output = mapa(outputs, this.dact).mul(hid_err).mul(this.ritme);
         let grad_hidout = mapa(hid_outputs, this.dact).mul(hid_err).mul(this.ritme);
 
-        this.who += prod(grad_output, hid_outputs.tr());
-        this.wih += prod(grad_hidout, inputs.tr());
+        this.who.add(prod(grad_output, hid_outputs.tr()));
+        this.wih.add(prod(grad_hidout, inputs.tr()));
     };
 
     this.previsio = function (inputs_ll) {
         let inputs = a_matriu(inputs_ll);
-        let hid_inputs = prod(self.wih, inputs);
-        let hid_outputs = mapa(hid_inputs, self.act);
-        let out_inputs = prod(self.who, hid_outputs);
-        return mapa(out_inputs, self.act).allista()
+        let hid_inputs = prod(this.wih, inputs);
+        let hid_outputs = mapa(hid_inputs, this.act);
+        let out_inputs = prod(this.who, hid_outputs.tr());
+        return mapa(out_inputs, this.act).allista();
     };
 
 }
 
-for (var i = 0; i <= 100; i++){
-    console.log(dtanh(i));
+function recta(x, y){
+    if (y - x > 0){
+        return 1;
+    }else{
+        return -1;
+    }
 }
+
+var nn = new NeuralNetwork(2, 1, 1, 0.01, Math.tanh);
+for (let i = 0; i < 10000; i++){
+    let x = Math.random();
+    let y = Math.random();
+    nn.educa([x, y], [recta(x,y)]);
+    nn.educa([x, y], [recta(x,y)]);
+}
+console.log(nn.wih);
+console.log(nn.who);
+console.log(nn.previsio([0.6,0.5]));
