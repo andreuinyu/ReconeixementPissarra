@@ -44,8 +44,8 @@ function NeuralNetwork(inp, hid, out, ritme=0.1, act=sigmoid){
     }
 
     this.muta = function() {
-        this.wih = map(this.wih, muta);
-        this.who = map(this.who, muta);
+        this.wih = mapa(this.wih, muta);
+        this.who = mapa(this.who, muta);
     };
 
     this.educa = function(inputs_ll, targets_ll){
@@ -53,15 +53,15 @@ function NeuralNetwork(inp, hid, out, ritme=0.1, act=sigmoid){
         let targets = a_matriu(targets_ll);
 
         let hid_inputs = prod(this.wih, inputs);
-        let hid_outputs = map(hid_inputs, this.act);
+        let hid_outputs = mapa(hid_inputs, this.act);
         let out_inputs = prod(this.who, hid_outputs);
-        let outputs = map(out_inputs, this.act);
+        let outputs = mapa(out_inputs, this.act);
 
         let err = targets - outputs;
         let hid_err = prod(this.who.tr(), err);
 
-        let grad_output = map(outputs, this.dact).mul(hid_err).mul(this.ritme);
-        let grad_hidout = map(hid_outputs, this.dact).mul(hid_err).mul(this.ritme);
+        let grad_output = mapa(outputs, this.dact).mul(hid_err).mul(this.ritme);
+        let grad_hidout = mapa(hid_outputs, this.dact).mul(hid_err).mul(this.ritme);
 
         this.who += prod(grad_output, hid_outputs.tr());
         this.wih += prod(grad_hidout, inputs.tr());
@@ -70,9 +70,9 @@ function NeuralNetwork(inp, hid, out, ritme=0.1, act=sigmoid){
     this.previsio = function (inputs_ll) {
         let inputs = a_matriu(inputs_ll);
         let hid_inputs = prod(self.wih, inputs);
-        let hid_outputs = map(hid_inputs, self.act);
+        let hid_outputs = mapa(hid_inputs, self.act);
         let out_inputs = prod(self.who, hid_outputs);
-        return map(out_inputs, self.act).allista()
+        return mapa(out_inputs, self.act).allista()
     };
 
 }
