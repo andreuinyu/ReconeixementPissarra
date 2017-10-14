@@ -53,55 +53,40 @@ function NeuralNetwork(inp, hid, out, ritme=0.1, act=sigmoid){
         this.dact = x => 0;
     }
 
-    this.muta = function() {
-        this.wih = mapa(this.wih, muta);
-        this.who = mapa(this.who, muta);
-    };
-
-    this.educa = function(inputs_ll, targets_ll){
-        let inputs = a_matriu(inputs_ll);
-        let targets = a_matriu(targets_ll);
-
-        let hid_inputs = prod(this.wih, inputs);
-        let hid_outputs = mapa(hid_inputs, this.act);
-        let out_inputs = prod(this.who, hid_outputs);
-        let outputs = mapa(out_inputs, this.act);
-
-        let err = targets.sub(outputs);
-        let hid_err = prod(this.who.tr(), err);
-
-        let grad_output = mapa(outputs, this.dact).mul(hid_err).mul(this.ritme);
-        let grad_hidout = mapa(hid_outputs, this.dact).mul(hid_err).mul(this.ritme);
-
-        this.who.add(prod(grad_output, hid_outputs.tr()));
-        this.wih.add(prod(grad_hidout, inputs.tr()));
-    };
-
-    this.previsio = function (inputs_ll) {
-        let inputs = a_matriu(inputs_ll);
-        let hid_inputs = prod(this.wih, inputs);
-        let hid_outputs = mapa(hid_inputs, this.act);
-        let out_inputs = prod(this.who, hid_outputs.tr());
-        return mapa(out_inputs, this.act).allista();
-    };
-
-}
-
-function recta(x, y){
-    if (y - x > 0){
-        return 1;
-    }else{
-        return -1;
+    NeuralNetwork.prototype.muta = function() {
+        this.wih = Matriu.mapa(this.wih, muta);
+        this.who = Matriu.mapa(this.who, muta);
     }
-}
 
-var nn = new NeuralNetwork(2, 1, 1, 0.01, Math.tanh);
-for (let i = 0; i < 10000; i++){
-    let x = Math.random();
-    let y = Math.random();
-    nn.educa([x, y], [recta(x,y)]);
-    nn.educa([x, y], [recta(x,y)]);
+    NeuralNetwork.prototype.educa = function(inputs_ll, targets_ll){
+        let inputs = Matriu.a_matriu(inputs_ll);
+        let targets = Matriu.a_matriu(targets_ll);
+
+        let hid_inputs = Matriu.prod(this.wih, inputs);
+        let hid_outputs = Matriu.mapa(hid_inputs, this.act);
+        let out_inputs = Matriu.prod(this.who, hid_outputs);
+        let outputs = Matriu.mapa(out_inputs, this.act);
+
+        let err = Matriu.sub(targets, outputs);
+        let hid_err = Matriu.prod(this.who.tr(), err);
+
+        let grad_output = Matriu.mapa(outputs, this.dact);
+        grad_output.mul(hid_err);
+        grad_output.mul(this.ritme);
+        let grad_hidout = Matriu.mapa(hid_outputs,this.dact);
+        grad_hidout.mul(hid_err);
+        grad_hidout.mul(this.ritme);
+
+        this.who.add(Matriu.prod(grad_output, hid_outputs.tr()));
+        this.wih.add(Matriu.prod(grad_hidout, inputs.tr()));
+    }
+
+    NeuralNetwork.prototype.previsio = function (inputs_ll) {
+        let inputs = Matriu.a_matriu(inputs_ll);
+        let hid_inputs = Matriu.prod(this.wih, inputs);
+        let hid_outputs = Matriu.mapa(hid_inputs, this.act);
+        let out_inputs = Matriu.prod(this.who, hid_outputs);
+        return Matriu.mapa(out_inputs, this.act);
+    }
+
 }
-console.log(nn.wih);
-console.log(nn.who);
-console.log(nn.previsio([0.6,0.5]));

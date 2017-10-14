@@ -6,13 +6,15 @@ function Matriu(files, columnes) {
 	this.f = files;
 	this.c = columnes;
 
-	let result = [];
-	for(var i = 0; i < files; i++) {
-		result.push(new Array(columnes).fill(0));
+	this.matriu = new Array(files);
+	for (var i = 0; i < this.f; i++) {
+		this.matriu[i] = new Array(columnes);
+		for (var j = 0; j < this.c; j++) {
+			this.matriu[i][j] = 0;
+		}
 	}
-	this.matriu = result;
 
-	this.aleatoritza =  function(){
+	Matriu.prototype.aleatoritza =  function(){
 		for(var i = 0; i < this.f; i++) {
 			for(var j = 0; j < this.c; j++) {
 				this.matriu[i][j] = gauss();
@@ -20,9 +22,9 @@ function Matriu(files, columnes) {
 		}
 	};
 
-	this.allista = function(){
+	Matriu.prototype.allista = function(){
 		var ll = [];
-		for(var i = 0; i < this.c; i++) {
+		for(var i = 0; i < this.f; i++) {
 			for(var j = 0; j < this.c; j++){
 				ll.push(this.matriu[i][j]);
 	    	}
@@ -30,20 +32,18 @@ function Matriu(files, columnes) {
 		return ll;
 	};
 
-	this.tr = function(){
+	Matriu.prototype.tr = function(){
 	//transposada
 		var resultat = new Matriu(this.c, this.f);
-		for(var i = 0; i < this.c; i++) {
-			for(var j = 0; j < this.f; j++) {
+		for(var i = 0; i < resultat.f; i++) {
+			for (var j = 0; j < resultat.c; j++) {
 				resultat.matriu[i][j] = this.matriu[j][i];
-	    	}
+			}
 		}
-		this.matriu = resultat.matriu;
 		return resultat;
-
 	};
 
-	this.copia = function(){
+	Matriu.prototype.copia = function(){
 		var resultat = new Matriu(this.f, this.c);
 		for(var i = 0; i < this.f; i++) {
 			for(var j = 0; j < this.c; j++) {
@@ -53,8 +53,8 @@ function Matriu(files, columnes) {
 		return resultat;
 	};
 
-	this.add = function(altre){
-		if (typeof altre ==='object'){
+	Matriu.prototype.add = function(altre){
+		if (altre instanceof Matriu){
 		    for(var i = 0; i < this.f; i++) {
 				for(var j = 0; j < this.c; j++) {
 					this.matriu[i][j] += altre.matriu[i][j];
@@ -70,13 +70,13 @@ function Matriu(files, columnes) {
 		return this;
 	};
 
-	this.sub = function(altre){
+	Matriu.prototype.sub = function(altre){
 		var nou_altre = altre.mul(-1);
 		return this.add(nou_altre);
 	};
 
-	this.mul = function(altre){
-		if (typeof altre ==='object'){
+	Matriu.prototype.mul = function(altre){
+		if (altre instanceof Matriu){
 		    for(var i = 0; i < this.f; i++) {
 				for(var j = 0; j < this.c; j++) {
 				this.matriu[i][j] *= altre.matriu[i][j];
@@ -93,16 +93,27 @@ function Matriu(files, columnes) {
 	};
 }
 
-function mapa(m, func){
+Matriu.mapa = function(m, func){
 	//Aplica una funció donada a cada valor
 	var resultat = new Matriu(m.f, m.c);
-	for(var i = 0; i < resultat.f; i++) {
-		resultat.matriu[i] = m.matriu[i].map(func);
+	for (var i = 0; i < resultat.f; i++) {
+		for (var j = 0; j < resultat.c; j++) {
+			resultat.matriu[i][j] = func(m.matriu[i][j]);
+		}
 	}
 	return resultat;
 }
-	
-function prod(a, b){
+
+Matriu.sub = function(a, b) {
+	var resultat = new Matriu(a.f, a.c);
+	for (var i = 0; i < resultat.f; i++) {
+		for (var j = 0; j < resultat.c; j++) {
+			resultat.matriu[i][j] = a.matriu[i][j] - b.matriu[i][j];
+		}
+	}
+	return resultat;
+}
+Matriu.prod = function(a, b){
     //Producte matricial
     if (a.c != b.f){
 		throw "Tamanys Erronis"
@@ -121,10 +132,10 @@ function prod(a, b){
     return resultat;
 }
 
-function a_matriu(ll){
+Matriu.a_matriu = function(ll){
     let m = new Matriu(ll.length, 1);
     for (let i = 0; i < ll.length; i++) {
-		m.matriu[i][0] = ll[i];
+		m.matriu[i][0] = parseFloat([i]);
 	}
     return m;
 }
