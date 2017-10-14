@@ -1,0 +1,120 @@
+<html>
+<title>Noice</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<body>
+
+<div class="w3-container">
+    <div class="w3-display-middle">
+    <!--<button class="button" onclick="chooseFile()"> Upload your image</button> -->
+    <input class="button" type="file" onchange="chooseFile()"><br>
+    <img id="orig" src="" alt="Image preview...">
+    <button class="button" onclick="threshold()"> Grayscale Image</button>
+    <canvas id="threshold" style="display: none;"></canvas>
+    </div>
+</div>
+<script>
+function chooseFile(){
+    var preview = document.querySelector('img'); //selects the query named img
+    var file    = document.querySelector('input[type=file]').files[0]; //sames as here
+    var reader  = new FileReader();
+    reader.onloadend = function () {
+    preview.src = reader.result;
+    }
+    if (file) {
+      reader.readAsDataURL(file); //reads the data as a URL
+     } else {
+      preview.src = "";
+     }
+
+}
+
+function resizeImg(img){
+  var prefWidth = 150;
+  var ratio = prefWidth / img.width;
+
+}
+
+
+        Filters = {};
+        Filters.getPixels = function(img) {
+        var c = this.getCanvas(img.width, img.height);
+        var ctx = c.getContext('2d');
+        var w = img.width;
+        var h = img.height*200/w;
+        ctx.drawImage(img, 0 ,0);
+        return ctx.getImageData(0,0,c.width,c.height);
+        };
+
+        Filters.getCanvas = function(w,h) {
+        var c = document.createElement('canvas');
+        c.width = w;
+        c.height = h;
+        return c;
+        };
+
+        Filters.filterImage = function(filter, image, var_args) {
+        var args = [this.getPixels(image)];
+        for (var i=2; i<arguments.length; i++) {
+          args.push(arguments[i]);
+        }
+        return filter.apply(null, args);
+        };
+
+        Filters.threshold = function(pixels, threshold) {
+          var d = pixels.data;
+          for (var i=0; i<d.length; i+=4) {
+            d[i] += 60;
+            d[i+1] += 60;
+            d[i+2] += 60;
+            var r = d[i];
+            var g = d[i+1];
+            var b = d[i+2];
+            var v = (0.2126*r + 0.7152*g + 0.0722*b >= threshold) ? 255 : 0;
+            d[i] = d[i+1] = d[i+2] = v
+          }
+          return pixels;
+        };
+        var img = document.getElementById('orig');
+        img.addEventListener('load', function() {
+
+      var canvases = document.getElementsByTagName('canvas');
+      for (var i=0; i<canvases.length; i++) {
+        var c = canvases[i];
+        c.parentNode.insertBefore(img.cloneNode(true), c);
+        c.style.display = 'none';
+      }
+        function runFilter(id, filter, arg1) {
+        var c = document.getElementById(id);
+        var s = c.previousSibling.style;
+        var idata = Filters.filterImage(filter, img, arg1);
+        c.width = idata.width;
+        c.height = idata.height;
+        var ctx = c.getContext('2d');
+        ctx.putImageData(idata, 0, 0);
+        s.display = 'none';
+        c.style.display = 'inline';
+
+      }
+        threshold = function() {
+        runFilter('threshold', Filters.threshold, 128);
+      }}, false);
+//chooseFile();-->
+</script>
+
+<style>
+.button{
+  background-color: #555555;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+</style>
+</body>
+</html>
