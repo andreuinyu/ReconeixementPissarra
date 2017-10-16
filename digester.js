@@ -1,15 +1,16 @@
 /**
- * Created by andre on 14/10/2017.
+ * Created by andreu on 14/10/2017.
  */
 
+let volum = 601;
 var samples = new Array(10);
 for (let i = 0; i< 10; i++){
-    samples[i] = new Array();
+    samples[i] = new Array(volum);
 }
 var jsons = new Array(10);
 var examen = [];
 var nn = new NeuralNetwork(784, 16, 10, 0.001, Math.tanh);
-let volum = 601;
+
 
 function preload(){
 
@@ -82,10 +83,10 @@ function setup(){
     for (let k = 0; k < 10; k++){
         let resposta = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
         resposta[k] = 1;
-        for (let h = 0; h < samples[k].length-2; h++){
+        for (let h = 0; h < volum - 2; h++){
             nn.educa(samples[k][h], resposta);
         }
-        let prob = samples[k][samples[k].length - 1];
+        let prob = samples[k][volum - 1];
         examen.push(prob);
     }
 
